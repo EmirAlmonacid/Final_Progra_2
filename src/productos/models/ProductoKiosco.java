@@ -39,6 +39,9 @@ public abstract class ProductoKiosco implements Comparable<ProductoKiosco>, Seri
         this(id, nombre, marca, precio, 0, CategoriaKiosco.SNACK);
     }
     
+    public int getId() {
+        return id;
+    }
     
     
      // ====== COMPORTAMIENTOS COMUNES ======
@@ -64,6 +67,14 @@ public abstract class ProductoKiosco implements Comparable<ProductoKiosco>, Seri
     @Override
     public int compareTo(ProductoKiosco otro) {
         return this.nombre.compareToIgnoreCase(otro.nombre);
+    }
+
+    public double getPrecio() {
+        return precio;
+    }
+
+    public String getNombre() {
+        return nombre;
     }
     
 }
