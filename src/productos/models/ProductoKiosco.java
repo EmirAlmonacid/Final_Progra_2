@@ -1,27 +1,24 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
- */
 package productos.models;
 
 import enums.CategoriaKiosco;
 import enums.Marca;
-import java.io.Serializable;
-
+import java.io.Serializable;  // para poder serializar si se quiere binario
 
 public abstract class ProductoKiosco implements Comparable<ProductoKiosco>, Serializable {
 
- 
+    private static final long serialVersionUID = 1L;
+
     protected int id;
     protected String nombre;
     protected Marca marca;
     protected double precio;
     protected int stock;
     protected CategoriaKiosco categoria;
-
+    protected boolean activo = true;
 
     public ProductoKiosco(int id, String nombre, Marca marca, double precio,
                           int stock, CategoriaKiosco categoria) {
+
         this.id = id;
         this.nombre = nombre;
         this.marca = marca;
@@ -30,51 +27,33 @@ public abstract class ProductoKiosco implements Comparable<ProductoKiosco>, Seri
         this.categoria = categoria;
     }
 
+    // Getters y Setters
+    public int getId() { return id; }
+    public String getNombre() { return nombre; }
+    public double getPrecio() { return precio; }
+    public int getStock() { return stock; }
+    public boolean isActivo() { return activo; }
 
-    public ProductoKiosco(int id, String nombre, Marca marca, double precio, CategoriaKiosco categoria) {
-        this(id, nombre, marca, precio, 0, categoria);
-    }
+    public void setPrecio(double precio) { this.precio = precio; }
+    public void setStock(int stock) { this.stock = stock; }
+    public void setActivo(boolean activo) { this.activo = activo; }
 
-    public ProductoKiosco(int id, String nombre, Marca marca, double precio) {
-        this(id, nombre, marca, precio, 0, CategoriaKiosco.SNACK);
-    }
-    
-    public int getId() {
-        return id;
-    }
-    
-    
-     // ====== COMPORTAMIENTOS COMUNES ======
-
-    /** Aplica un descuento porcentual sobre el precio del producto. */
-    public void aplicarDescuento(double porcentaje) {
-        if (porcentaje < 0 || porcentaje > 100) return;
-        double nuevo = precio * (1.0 - porcentaje / 100.0);
-        this.precio = Math.max(0, nuevo);
-    }
-
-    /**  Devuelve una descripción legible del producto (marca + nombre + categoría). */
-    public String getDescripcion() {
-    return marca + " " + nombre + " [" + categoria + "]";
-}
-
-
-    /**  Calcula el precio final del producto (cada subclase define su forma). */
-    public double calcularPrecioFinal() {
-        return precio * 1.21;
-    }
-    
+    // Ordenamiento natural (por nombre)
     @Override
     public int compareTo(ProductoKiosco otro) {
         return this.nombre.compareToIgnoreCase(otro.nombre);
     }
 
-    public double getPrecio() {
-        return precio;
+    @Override
+    public String toString() {
+        return nombre + " | $" + precio + " | stock: " + stock;
     }
 
-    public String getNombre() {
-        return nombre;
+    // ----------------------------------------------------
+    // PUNTO 6 - ayuda para CSV
+    // Formato: id;nombre;precio;stock
+    // ----------------------------------------------------
+    public String aCsv() {
+        return getId() + ";" + getNombre() + ";" + getPrecio() + ";" + getStock();
     }
-    
 }

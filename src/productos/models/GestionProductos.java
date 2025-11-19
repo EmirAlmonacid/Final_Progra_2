@@ -1,160 +1,197 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
- */
 package productos.models;
-import java.util.*;
+
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.Iterator;
 import java.util.List;
-/**
- *
- * @author emira
- */
+import java.util.function.Consumer;
+import java.util.function.Function;
+import java.util.function.Predicate;
+import java.util.function.UnaryOperator;
+
 public class GestionProductos implements ICRUD<ProductoKiosco, Integer>, Iterable<ProductoKiosco> {
 
-    // Lista donde se guardan los productos
-    private final List<ProductoKiosco> lista = new ArrayList<>();
+    private List<ProductoKiosco> lista = new ArrayList<>();
 
-    // Contador de cambios (lo usa el iterador)
-    private int modCount = 0;
-
-    // -----------------------
-    // MÉTODOS CRUD
-    // -----------------------
-
-    // Agrega un producto si el ID no existe
+    // ----------------------
+    // CRUD
+    // ----------------------
     @Override
     public boolean crear(ProductoKiosco entidad) {
-        if (entidad == null) return false;
-        if (leerPorId(entidad.getId()) != null) return false; // ID duplicado
+        if (leerPorId(entidad.getId()) != null) return false; // no duplicar ID
         lista.add(entidad);
-        modCount++;
         return true;
     }
 
-    // Busca un producto por su ID. Devuelve el producto o null si no existe
     @Override
     public ProductoKiosco leerPorId(Integer id) {
         for (ProductoKiosco p : lista) {
-            if (p.getId() == id) {
-                return p;
-            }
+            if (p.getId() == id) return p;
         }
         return null;
     }
 
-    // Devuelve una copia de la lista (para no exponer la original)
     @Override
     public List<ProductoKiosco> leerTodos() {
         return new ArrayList<>(lista);
     }
 
-    // Reemplaza un producto que ya existe (por ID)
     @Override
     public boolean actualizar(ProductoKiosco entidad) {
-        if (entidad == null) return false;
-        Integer id = entidad.getId();
         for (int i = 0; i < lista.size(); i++) {
-            if (lista.get(i).getId() == id) {
+            if (lista.get(i).getId() == entidad.getId()) {
                 lista.set(i, entidad);
-                modCount++;
                 return true;
             }
         }
         return false;
     }
 
-    // Elimina un producto por su ID
     @Override
     public boolean eliminarPorId(Integer id) {
-        Iterator<ProductoKiosco> it = lista.iterator();
-        while (it.hasNext()) {
-            if (it.next().getId() == id) {
-                it.remove();
-                modCount++;
+        for (int i = 0; i < lista.size(); i++) {
+            if (lista.get(i).getId() == id) {
+                lista.remove(i);
                 return true;
             }
         }
         return false;
     }
 
-    // -----------------------
-    // ITERADOR (para for-each)
-    // -----------------------
+    // ----------------------
+    // ORDENAMIENTOS (PUNTO 4)
+    // ----------------------
+    public void ordenarPorNombre() {
+        Collections.sort(lista);
+    }
 
+    public void ordenarPorPrecio() {
+        Collections.sort(lista, new Comparator<ProductoKiosco>() {
+            @Override
+            public int compare(ProductoKiosco p1, ProductoKiosco p2) {
+                return Double.compare(p1.getPrecio(), p2.getPrecio());
+            }
+        });
+    }
+
+    public void ordenarPorStock() {
+        Collections.sort(lista, new Comparator<ProductoKiosco>() {
+            @Override
+            public int compare(ProductoKiosco p1, ProductoKiosco p2) {
+                return Integer.compare(p1.getStock(), p2.getStock());
+            }
+        });
+    }
+
+    // ----------------------
+    // FILTROS (PUNTO 4)
+    // ----------------------
+    public List<ProductoKiosco> filtrar(Predicate<ProductoKiosco> condicion) {
+        List<ProductoKiosco> resultado = new ArrayList<>();
+        for (ProductoKiosco p : lista) {
+            if (condicion.test(p)) resultado.add(p);
+        }
+        return resultado;
+    }
+
+    public List<ProductoKiosco> filtrarPorNombre(String texto) {
+        final String t = texto.toLowerCase();
+        return filtrar(new Predicate<ProductoKiosco>() {
+            @Override
+            public boolean test(ProductoKiosco p) {
+                return p.getNombre().toLowerCase().contains(t);
+            }
+        });
+    }
+
+    public List<ProductoKiosco> filtrarPorPrecioMax(double max) {
+        return filtrar(new Predicate<ProductoKiosco>() {
+            @Override
+            public boolean test(ProductoKiosco p) {
+                return p.getPrecio() <= max;
+            }
+        });
+    }
+
+    // ----------------------
+    // PUNTO 5 – Interfaces funcionales
+    // ----------------------
+    public void paraCada(Consumer<ProductoKiosco> accion) {
+        for (ProductoKiosco p : lista) {
+            accion.accept(p);
+        }
+    }
+
+    public void actualizarSi(Predicate<ProductoKiosco> condicion, Consumer<ProductoKiosco> accion) {
+        for (ProductoKiosco p : lista) {
+            if (condicion.test(p)) {
+                accion.accept(p);
+            }
+        }
+    }
+
+    public void eliminarSi(Predicate<ProductoKiosco> condicion) {
+        for (int i = 0; i < lista.size(); i++) {
+            if (condicion.test(lista.get(i))) {
+                lista.remove(i);
+                i--;
+            }
+        }
+    }
+
+    public <R> List<R> transformar(Function<ProductoKiosco, R> funcion) {
+        List<R> salida = new ArrayList<>();
+        for (ProductoKiosco p : lista) {
+            R valor = funcion.apply(p);
+            salida.add(valor);
+        }
+        return salida;
+    }
+
+    public void reemplazarTodos(UnaryOperator<ProductoKiosco> operador) {
+        for (int i = 0; i < lista.size(); i++) {
+            ProductoKiosco original = lista.get(i);
+            ProductoKiosco nuevo = operador.apply(original);
+            lista.set(i, nuevo);
+        }
+    }
+
+    // ----------------------
+    // Iterador simple
+    // ----------------------
     @Override
     public Iterator<ProductoKiosco> iterator() {
-        return new IteradorProductos();
+        return lista.iterator();
     }
 
-    // Clase interna: recorre la lista
-    private class IteradorProductos implements Iterator<ProductoKiosco> {
-        private int cursor = 0;
-        private int lastRet = -1;
-        private int expectedModCount = modCount;
-
-        @Override
-        public boolean hasNext() {
-            return cursor < lista.size();
-        }
-
-        @Override
-        public ProductoKiosco next() {
-            if (cursor >= lista.size())
-                throw new NoSuchElementException("No hay más productos");
-            if (expectedModCount != modCount)
-                throw new ConcurrentModificationException("La lista cambió durante la iteración");
-            lastRet = cursor++;
-            return lista.get(lastRet);
-        }
-
-        @Override
-        public void remove() {
-            if (lastRet < 0)
-                throw new IllegalStateException("Primero llamá a next()");
-            if (expectedModCount != modCount)
-                throw new ConcurrentModificationException("La lista cambió durante la iteración");
-            lista.remove(lastRet);
-            cursor = lastRet;
-            lastRet = -1;
-            modCount++;
-            expectedModCount = modCount;
-        }
-    }
-    
-    
-    // Filtrar por nombre (texto que contenga)
-    public List<ProductoKiosco> filtrarPorNombre(String texto) {
-        List<ProductoKiosco> filtrados = new ArrayList<>();
-        for (ProductoKiosco p : lista) {
-            if (p.getNombre().toLowerCase().contains(texto.toLowerCase())) {
-                filtrados.add(p);
-            }
-        }
-        return filtrados;
-    }
-
-    // Filtrar por precio máximo
-    public List<ProductoKiosco> filtrarPorPrecioMax(double max) {
-        List<ProductoKiosco> filtrados = new ArrayList<>();
-        for (ProductoKiosco p : lista) {
-            if (p.getPrecio() <= max) {
-                filtrados.add(p);
-            }
-        }
-        return filtrados;
-    }
-
-    // Para ver todos los productos
-    public void mostrarLista() {
+    public void mostrar() {
         for (ProductoKiosco p : lista) {
             System.out.println(p);
         }
     }
 
-  
+    // =====================================================
+    // PUNTO 6 – PERSISTENCIA (DELEGA EN PersistenciaProductos)
+    // =====================================================
+
+    public void guardarCsv(String nombreArchivo) {
+        PersistenciaProductos.guardarCsv(lista, nombreArchivo);
+    }
+
+    public void cargarCsv(String nombreArchivo) {
+        PersistenciaProductos.cargarCsv(lista, nombreArchivo);
+    }
+
+    public void guardarJson(String nombreArchivo) {
+        PersistenciaProductos.guardarJson(lista, nombreArchivo);
+    }
+
+    public void cargarJson(String nombreArchivo) {
+        PersistenciaProductos.cargarJson(lista, nombreArchivo);
+    }
+
+    public void exportarTxtFiltrado(String nombreArchivo, double precioMaximo) {
+        PersistenciaProductos.exportarTxtFiltrado(lista, nombreArchivo, precioMaximo);
+    }
 }
-
-

@@ -1,7 +1,3 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
- */
 package productos.models;
 
 import enums.CategoriaKiosco;
@@ -14,19 +10,23 @@ public class Bebida extends ProductoKiosco {
     private boolean conAzucar;
     private LocalDate vencimiento;
 
+    // Constructor completo
     public Bebida(int id, String nombre, Marca marca, double precio,
                   int stock, int tamanioMl, boolean conAzucar, LocalDate vencimiento) {
+
         super(id, nombre, marca, precio, stock, CategoriaKiosco.BEBIDA);
+
         this.tamanioMl = tamanioMl;
         this.conAzucar = conAzucar;
         this.vencimiento = vencimiento;
     }
 
+    // Constructor corto (predefinido)
     public Bebida(int id, String nombre, Marca marca, double precio) {
-        super(id, nombre, marca, precio, CategoriaKiosco.BEBIDA);
+        super(id, nombre, marca, precio, 10, CategoriaKiosco.BEBIDA); // stock por defecto
+
         this.tamanioMl = 500;
         this.conAzucar = true;
         this.vencimiento = LocalDate.now().plusMonths(6);
     }
 }
-
