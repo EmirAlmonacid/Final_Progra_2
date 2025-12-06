@@ -3,20 +3,21 @@ package productos.models;
 import enums.CategoriaKiosco;
 import enums.Marca;
 
+/**
+ * Producto tipo Cigarillo.
+ */
 public class Cigarillo extends ProductoKiosco {
 
     // Atributos propios
-    private String tipo;              // ej: "box", "soft"
-    private int cantidadPorPaquete;   // ej: 20
-    private boolean conFiltro;        // true/false
+    private String tipo;            // ej: "box", "soft"
+    private int cantidadPorPaquete; // ej: 20
+    private boolean conFiltro;      // true/false
 
-    // ------------------------------
-    // Constructor COMPLETO
-    // ------------------------------
+    // Constructor completo
     public Cigarillo(int id, String nombre, Marca marca, double precio,
                      int stock, String tipo, int cantidadPorPaquete, boolean conFiltro) {
 
-        // Llama al constructor de la clase base (IMPORTANTE: incluye stock)
+        // Categoria fija: CIGARRILLO
         super(id, nombre, marca, precio, stock, CategoriaKiosco.CIGARRILLO);
 
         this.tipo = tipo;
@@ -24,9 +25,7 @@ public class Cigarillo extends ProductoKiosco {
         this.conFiltro = conFiltro;
     }
 
-    // ------------------------------
-    // Constructor CORTO (valores por defecto)
-    // ------------------------------
+    // Constructor corto (valores por defecto)
     public Cigarillo(int id, String nombre, Marca marca, double precio) {
         super(id, nombre, marca, precio, 20, CategoriaKiosco.CIGARRILLO); // stock default = 20
 
@@ -35,9 +34,7 @@ public class Cigarillo extends ProductoKiosco {
         this.conFiltro = true;
     }
 
-    // ------------------------------
-    // Getters y Setters
-    // ------------------------------
+    // Getters y setters simples
     public String getTipo() { return tipo; }
     public void setTipo(String tipo) { this.tipo = tipo; }
 
@@ -49,9 +46,7 @@ public class Cigarillo extends ProductoKiosco {
     public boolean isConFiltro() { return conFiltro; }
     public void setConFiltro(boolean conFiltro) { this.conFiltro = conFiltro; }
 
-    // ------------------------------
-    // toString para mostrar en listados
-    // ------------------------------
+    // Para mostrar en listados
     @Override
     public String toString() {
         return nombre + " | $" + precio +

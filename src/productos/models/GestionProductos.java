@@ -10,16 +10,47 @@ import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.function.UnaryOperator;
 
+// ================================================================
+// PUNTO 9 – Excepciones propias
+// ================================================================
+class ProductoNoEncontradoException extends RuntimeException {
+    public ProductoNoEncontradoException(String msg) {
+        super(msg);
+    }
+}
+
+class DatoInvalidoException extends RuntimeException {
+    public DatoInvalidoException(String msg) {
+        super(msg);
+    }
+}
+
+/**
+ * Clase que gestiona la lista de productos del kiosco.
+ * Implementa:
+ * - CRUD
+ * - Ordenamientos
+ * - Filtros
+ * - Interfaces funcionales
+ * - Wildcards
+ * - Excepciones propias
+ * - Persistencia delegada
+ * - Iterable (para foreach)
+ */
 public class GestionProductos implements ICRUD<ProductoKiosco, Integer>, Iterable<ProductoKiosco> {
 
+    // Lista interna de productos
     private List<ProductoKiosco> lista = new ArrayList<>();
 
-    // ----------------------
-    // CRUD
-    // ----------------------
+    // =====================================================
+    // 1. CRUD BÁSICO
+    // =====================================================
+
     @Override
     public boolean crear(ProductoKiosco entidad) {
-        if (leerPorId(entidad.getId()) != null) return false; // no duplicar ID
+        if (leerPorId(entidad.getId()) != null) {
+            return false;
+        }
         lista.add(entidad);
         return true;
     }
@@ -27,7 +58,9 @@ public class GestionProductos implements ICRUD<ProductoKiosco, Integer>, Iterabl
     @Override
     public ProductoKiosco leerPorId(Integer id) {
         for (ProductoKiosco p : lista) {
-            if (p.getId() == id) return p;
+            if (p.getId() == id) {
+                return p;
+            }
         }
         return null;
     }
@@ -59,9 +92,10 @@ public class GestionProductos implements ICRUD<ProductoKiosco, Integer>, Iterabl
         return false;
     }
 
-    // ----------------------
-    // ORDENAMIENTOS (PUNTO 4)
-    // ----------------------
+    // =====================================================
+    // 2. ORDENAMIENTOS
+    // =====================================================
+
     public void ordenarPorNombre() {
         Collections.sort(lista);
     }
@@ -84,39 +118,36 @@ public class GestionProductos implements ICRUD<ProductoKiosco, Integer>, Iterabl
         });
     }
 
-    // ----------------------
-    // FILTROS (PUNTO 4)
-    // ----------------------
-    public List<ProductoKiosco> filtrar(Predicate<ProductoKiosco> condicion) {
+    // =====================================================
+    // 3. FILTROS PRINCIPIANTES
+    // =====================================================
+
+    public List<ProductoKiosco> filtrarPorNombre(String texto) {
         List<ProductoKiosco> resultado = new ArrayList<>();
+        String buscado = texto.toLowerCase();
+
         for (ProductoKiosco p : lista) {
-            if (condicion.test(p)) resultado.add(p);
+            if (p.getNombre().toLowerCase().contains(buscado)) {
+                resultado.add(p);
+            }
         }
         return resultado;
     }
 
-    public List<ProductoKiosco> filtrarPorNombre(String texto) {
-        final String t = texto.toLowerCase();
-        return filtrar(new Predicate<ProductoKiosco>() {
-            @Override
-            public boolean test(ProductoKiosco p) {
-                return p.getNombre().toLowerCase().contains(t);
-            }
-        });
-    }
-
     public List<ProductoKiosco> filtrarPorPrecioMax(double max) {
-        return filtrar(new Predicate<ProductoKiosco>() {
-            @Override
-            public boolean test(ProductoKiosco p) {
-                return p.getPrecio() <= max;
+        List<ProductoKiosco> resultado = new ArrayList<>();
+        for (ProductoKiosco p : lista) {
+            if (p.getPrecio() <= max) {
+                resultado.add(p);
             }
-        });
+        }
+        return resultado;
     }
 
-    // ----------------------
-    // PUNTO 5 – Interfaces funcionales
-    // ----------------------
+    // =====================================================
+    // 4. INTERFACES FUNCIONALES
+    // =====================================================
+
     public void paraCada(Consumer<ProductoKiosco> accion) {
         for (ProductoKiosco p : lista) {
             accion.accept(p);
@@ -143,55 +174,109 @@ public class GestionProductos implements ICRUD<ProductoKiosco, Integer>, Iterabl
     public <R> List<R> transformar(Function<ProductoKiosco, R> funcion) {
         List<R> salida = new ArrayList<>();
         for (ProductoKiosco p : lista) {
-            R valor = funcion.apply(p);
-            salida.add(valor);
+            salida.add(funcion.apply(p));
         }
         return salida;
     }
 
     public void reemplazarTodos(UnaryOperator<ProductoKiosco> operador) {
         for (int i = 0; i < lista.size(); i++) {
-            ProductoKiosco original = lista.get(i);
-            ProductoKiosco nuevo = operador.apply(original);
-            lista.set(i, nuevo);
+            lista.set(i, operador.apply(lista.get(i)));
         }
     }
 
-    // ----------------------
-    // Iterador simple
-    // ----------------------
+    // =====================================================
+    // 5. ITERABLE → permite usar foreach
+    // =====================================================
+
     @Override
     public Iterator<ProductoKiosco> iterator() {
+        // simplemente devolvemos el iterador de la lista interna
         return lista.iterator();
     }
+
+    // =====================================================
+    // ⭐ NUEVO MÉTODO DEMOSTRATIVO (con hasNext()) ⭐
+    // =====================================================
+    /**
+     * Recorre la lista usando explícitamente el iterador con hasNext(),
+     * para demostrar cómo funciona la lógica que usa también el foreach.
+     */
+    public void recorrerConIteradorManual() {
+
+        System.out.println("Recorriendo productos usando hasNext():");
+
+        Iterator<ProductoKiosco> it = iterator(); // usa iterator() de arriba
+
+        while (it.hasNext()) {        // mientras haya elementos sin recorrer
+            ProductoKiosco p = it.next();  // obtengo el siguiente
+            System.out.println(p);         // muestro el producto
+        }
+    }
+
+    // =====================================================
+    // 6. WILDCARDS
+    // =====================================================
+
+    public void imprimirNombres(List<? extends ProductoKiosco> productos) {
+        for (ProductoKiosco p : productos) {
+            System.out.println(p.getNombre());
+        }
+    }
+
+    public void agregarALista(List<? super ProductoKiosco> productos, ProductoKiosco p) {
+        productos.add(p);
+    }
+
+    // =====================================================
+    // 7. EXCEPCIONES PROPIAS
+    // =====================================================
+
+    public ProductoKiosco buscarObligatorio(int id) {
+        ProductoKiosco p = leerPorId(id);
+        if (p == null) {
+            throw new ProductoNoEncontradoException("No se encontró producto con ID: " + id);
+        }
+        return p;
+    }
+
+    public void validarPrecio(double precio) {
+        if (precio < 0) {
+            throw new DatoInvalidoException("El precio no puede ser negativo");
+        }
+    }
+
+    // =====================================================
+    // 8. PERSISTENCIA
+    // =====================================================
+
+    public void guardarCsv(String archivo) {
+        PersistenciaProductos.guardarCsv(lista, archivo);
+    }
+
+    public void cargarCsv(String archivo) {
+        PersistenciaProductos.cargarCsv(lista, archivo);
+    }
+
+    public void guardarJson(String archivo) {
+        PersistenciaProductos.guardarJson(lista, archivo);
+    }
+
+    public void cargarJson(String archivo) {
+        PersistenciaProductos.cargarJson(lista, archivo);
+    }
+
+    public void exportarTxtFiltrado(String archivo, double max) {
+        PersistenciaProductos.exportarTxtFiltrado(lista, archivo, max);
+    }
+
+    // =====================================================
+    // 9. DEPURACIÓN
+    // =====================================================
 
     public void mostrar() {
         for (ProductoKiosco p : lista) {
             System.out.println(p);
         }
-    }
-
-    // =====================================================
-    // PUNTO 6 – PERSISTENCIA (DELEGA EN PersistenciaProductos)
-    // =====================================================
-
-    public void guardarCsv(String nombreArchivo) {
-        PersistenciaProductos.guardarCsv(lista, nombreArchivo);
-    }
-
-    public void cargarCsv(String nombreArchivo) {
-        PersistenciaProductos.cargarCsv(lista, nombreArchivo);
-    }
-
-    public void guardarJson(String nombreArchivo) {
-        PersistenciaProductos.guardarJson(lista, nombreArchivo);
-    }
-
-    public void cargarJson(String nombreArchivo) {
-        PersistenciaProductos.cargarJson(lista, nombreArchivo);
-    }
-
-    public void exportarTxtFiltrado(String nombreArchivo, double precioMaximo) {
-        PersistenciaProductos.exportarTxtFiltrado(lista, nombreArchivo, precioMaximo);
     }
 }
