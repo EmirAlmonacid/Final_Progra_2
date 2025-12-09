@@ -4,9 +4,7 @@ import enums.CategoriaKiosco;
 import enums.Marca;
 import java.time.LocalDate;
 
-/**
- * Producto tipo Bebida.
- */
+// Representa una bebida del kiosco
 public class Bebida extends ProductoKiosco {
 
     private int tamanioMl;
@@ -17,7 +15,6 @@ public class Bebida extends ProductoKiosco {
     public Bebida(int id, String nombre, Marca marca, double precio,
                   int stock, int tamanioMl, boolean conAzucar, LocalDate vencimiento) {
 
-        // Categoria fija: BEBIDA
         super(id, nombre, marca, precio, stock, CategoriaKiosco.BEBIDA);
 
         this.tamanioMl = tamanioMl;
@@ -25,9 +22,9 @@ public class Bebida extends ProductoKiosco {
         this.vencimiento = vencimiento;
     }
 
-    // Constructor corto (valores por defecto)
+    // Constructor con valores por defecto
     public Bebida(int id, String nombre, Marca marca, double precio) {
-        super(id, nombre, marca, precio, 10, CategoriaKiosco.BEBIDA); // stock por defecto
+        super(id, nombre, marca, precio, 10, CategoriaKiosco.BEBIDA);
 
         this.tamanioMl = 500;
         this.conAzucar = true;

@@ -299,7 +299,6 @@ public class MainFX extends Application {
             double precio = Double.parseDouble(txtPrecio.getText());
             int stock = Integer.parseInt(txtStock.getText());
 
-            // Tomo la marca y categoría seleccionadas en los combos
             Marca marcaSeleccionada = cboMarca.getValue();
             if (marcaSeleccionada == null) {
                 marcaSeleccionada = Marca.values()[0]; // por las dudas

@@ -2,20 +2,14 @@ package productos.models;
 
 import enums.CategoriaKiosco;
 import enums.Marca;
-import java.io.Serializable;  // para poder serializar si se quiere binario
+import java.io.Serializable;
 
-/**
- * Clase base de cualquier producto del kiosco.
- * De acá heredan Snack, Bebida, Cigarillo, etc.
- */
+// Clase base para todos los productos del kiosco
 public abstract class ProductoKiosco
         implements Comparable<ProductoKiosco>, Serializable, Identificable<Integer> {
 
     private static final long serialVersionUID = 1L;
 
-    // -------------------------
-    // Atributos comunes
-    // -------------------------
     protected int id;
     protected String nombre;
     protected Marca marca;
@@ -24,15 +18,9 @@ public abstract class ProductoKiosco
     protected CategoriaKiosco categoria;
     protected boolean activo = true;
 
-    /**
-     * Constructor básico con todos los datos que comparten los productos.
-     */
-    public ProductoKiosco(int id,
-                          String nombre,
-                          Marca marca,
-                          double precio,
-                          int stock,
-                          CategoriaKiosco categoria) {
+    // Constructor común
+    public ProductoKiosco(int id, String nombre, Marca marca,
+                          double precio, int stock, CategoriaKiosco categoria) {
 
         this.id = id;
         this.nombre = nombre;
@@ -42,90 +30,44 @@ public abstract class ProductoKiosco
         this.categoria = categoria;
     }
 
-    // -------------------------
-    // Getters (lectura)
-    // -------------------------
+    // ---- Getters ----
 
-    // Implementa la interfaz Identificable<Integer>
-    // (el int se autoboxea a Integer)
     @Override
     public Integer getId() {
         return id;
     }
 
-    // Si querés dejar también la versión primitiva:
-    // (no rompe nada, solo es azúcar sintáctica)
-    public int getIdPrimitive() {
-        return id;
-    }
+    public int getIdPrimitive() { return id; }
 
-    public String getNombre() {
-        return nombre;
-    }
+    public String getNombre() { return nombre; }
 
-    public double getPrecio() {
-        return precio;
-    }
+    public double getPrecio() { return precio; }
 
-    public int getStock() {
-        return stock;
-    }
+    public int getStock() { return stock; }
 
-    public boolean isActivo() {
-        return activo;
-    }
+    public boolean isActivo() { return activo; }
 
-    // NUEVOS getters (para usar Marca y Categoria en CSV/JSON/TXT)
-    public Marca getMarca() {
-        return marca;
-    }
+    public Marca getMarca() { return marca; }
 
-    public CategoriaKiosco getCategoria() {
-        return categoria;
-    }
+    public CategoriaKiosco getCategoria() { return categoria; }
 
-    // -------------------------
-    // Setters (modificación)
-    // -------------------------
+    // ---- Setters ----
 
-    public void setPrecio(double precio) {
-        this.precio = precio;
-    }
+    public void setPrecio(double precio) { this.precio = precio; }
 
-    public void setStock(int stock) {
-        this.stock = stock;
-    }
+    public void setStock(int stock) { this.stock = stock; }
 
-    public void setActivo(boolean activo) {
-        this.activo = activo;
-    }
+    public void setActivo(boolean activo) { this.activo = activo; }
 
-    /**
-     * Setter de categoría.
-     * Lo usamos desde MainFX para cambiar la categoría del producto.
-     */
-    public void setCategoria(CategoriaKiosco categoria) {
-        this.categoria = categoria;
-    }
+    public void setCategoria(CategoriaKiosco categoria) { this.categoria = categoria; }
 
-    // -------------------------
-    // Orden natural por nombre
-    // -------------------------
-
+    // ---- Orden natural ----
     @Override
     public int compareTo(ProductoKiosco otro) {
-        // Compara por nombre ignorando mayúsculas/minúsculas
-        return this.nombre.compareToIgnoreCase(otro.nombre);
+        return nombre.compareToIgnoreCase(otro.nombre);
     }
 
-    // -------------------------
-    // Representación en texto
-    // -------------------------
-
-    /**
-     * Este texto es lo que se muestra en la ListView.
-     * Incluye el ID como primer dato.
-     */
+    // ---- Representación para ListView ----
     @Override
     public String toString() {
         return id + " | " + nombre +
@@ -135,16 +77,13 @@ public abstract class ProductoKiosco
                " | " + categoria;
     }
 
-    // ----------------------------------------------------
-    // PUNTO 6 - ayuda para CSV
-    // Formato: id;nombre;marca;categoria;precio;stock
-    // ----------------------------------------------------
+    // ---- Formato CSV ----
     public String aCsv() {
-        return getId() + ";" +
-               getNombre() + ";" +
-               getMarca() + ";" +
-               getCategoria() + ";" +
-               getPrecio() + ";" +
-               getStock();
+        return id + ";" +
+               nombre + ";" +
+               marca + ";" +
+               categoria + ";" +
+               precio + ";" +
+               stock;
     }
 }
